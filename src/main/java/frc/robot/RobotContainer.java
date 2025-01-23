@@ -64,8 +64,6 @@ public class RobotContainer
   public final AprilTag aprilTag22 = new AprilTag(drivebase, 22); // Replace `1` with your desired tag ID
 
 
-  public RobotContainer bot = Robot.getInstance().m_robotContainer;
-
   // Applies deadbands and inverts controls because joysticks
   // are back-right positive while robot
   // controls are front-left positive
@@ -147,10 +145,8 @@ public class RobotContainer
       driverXbox.rightBumper().onTrue(Commands.none());
       drivebase.setDefaultCommand(
           !RobotBase.isSimulation() ? driveFieldOrientedAnglularVelocity : driveFieldOrientedDirectAngleSim);
-    } else
-    {
+    } else {
       driverXbox.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
-      // driverXbox.x().onTrue(Commands.runOnce(drivebase::addFakeVisionReading));
       driverXbox.b().whileTrue(
           Commands.deferredProxy(() -> drivebase.driveToPose(
                                      new Pose2d(new Translation2d(0, 0), Rotation2d.fromDegrees(0)))
@@ -168,9 +164,16 @@ public class RobotContainer
           !RobotBase.isSimulation() ? driveFieldOrientedDirectAngle : driveFieldOrientedDirectAngleSim);
 
       // If Target Tag is Visible
-      if (bot.aprilTag22.isTargetTagVisible()) {
-        // driverXbox.x().onTrue(Commands.runOnce(drivebase::addFakeVisionReading));
-      }
+        driverXbox.x().onTrue(Commands.runOnce(() -> {
+          if (this.aprilTag22.isTargetTagVisible()) {
+            System.out.println("Pressed X & Target Visible.");
+            // Drive forward with a velocity of 1 meter per second
+            drivebase.drive(new Translation2d(1.0, 0.0), 0, false);
+        } else {
+            System.out.println("Pressed X but Target Not Visible.");
+        }
+        }));
+        
     }
   }
 

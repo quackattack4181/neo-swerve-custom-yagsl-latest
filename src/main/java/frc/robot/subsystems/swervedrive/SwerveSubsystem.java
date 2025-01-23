@@ -678,4 +678,10 @@ public class SwerveSubsystem extends SubsystemBase
   {
     swerveDrive.addVisionMeasurement(new Pose2d(3, 3, Rotation2d.fromDegrees(65)), Timer.getFPGATimestamp());
   }
+
+
+  public void stop() {
+    // Call the drive method with zero translation and zero rotation to stop all motion
+    swerveDrive.drive(new Translation2d(0, 0), 0, false, visionDriveTest);
+}
 }
