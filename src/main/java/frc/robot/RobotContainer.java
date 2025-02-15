@@ -4,6 +4,12 @@
 
 package frc.robot;
 
+// import edu.wpi.first.math.geometry.Pose2d;
+// import edu.wpi.first.math.geometry.Rotation2d;
+// import edu.wpi.first.math.geometry.Translation2d;
+// import edu.wpi.first.wpilibj.DriverStation;
+// import edu.wpi.first.wpilibj.RobotBase;
+// import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -11,6 +17,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -20,9 +27,14 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+
+import limelight.Limelight;
+
 import java.io.File;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+// import com.ctre.phoenix6.hardware.CANrange;
+// import com.pathplanner.lib.config.PIDConstants;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
@@ -35,33 +47,17 @@ public class RobotContainer
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   final CommandXboxController driverXbox = new CommandXboxController(0);
+  final XboxController driverXboxControllerTwo = new XboxController(1);
+
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
                                                                          "swerve/neo"));
 
 
-  public final AprilTag aprilTag1 = new AprilTag(drivebase, 1); // Replace `1` with your desired tag ID
-  public final AprilTag aprilTag2 = new AprilTag(drivebase, 2); // Replace `1` with your desired tag ID
-  public final AprilTag aprilTag3 = new AprilTag(drivebase, 3); // Replace `1` with your desired tag ID
-  public final AprilTag aprilTag4 = new AprilTag(drivebase, 4); // Replace `1` with your desired tag ID
-  public final AprilTag aprilTag5 = new AprilTag(drivebase, 5); // Replace `1` with your desired tag ID
-  public final AprilTag aprilTag6 = new AprilTag(drivebase, 6); // Replace `1` with your desired tag ID
-  public final AprilTag aprilTag7 = new AprilTag(drivebase, 7); // Replace `1` with your desired tag ID
-  public final AprilTag aprilTag8 = new AprilTag(drivebase, 8); // Replace `1` with your desired tag ID
-  public final AprilTag aprilTag9 = new AprilTag(drivebase, 9); // Replace `1` with your desired tag ID
-  public final AprilTag aprilTag10 = new AprilTag(drivebase, 10); // Replace `1` with your desired tag ID
-  public final AprilTag aprilTag11 = new AprilTag(drivebase, 11); // Replace `1` with your desired tag ID
-  public final AprilTag aprilTag12 = new AprilTag(drivebase, 12); // Replace `1` with your desired tag ID
-  public final AprilTag aprilTag13 = new AprilTag(drivebase, 13); // Replace `1` with your desired tag ID
-  public final AprilTag aprilTag14 = new AprilTag(drivebase, 14); // Replace `1` with your desired tag ID
-  public final AprilTag aprilTag15 = new AprilTag(drivebase, 15); // Replace `1` with your desired tag ID
-  public final AprilTag aprilTag16 = new AprilTag(drivebase, 16); // Replace `1` with your desired tag ID
-  public final AprilTag aprilTag17 = new AprilTag(drivebase, 17); // Replace `1` with your desired tag ID
-  public final AprilTag aprilTag18 = new AprilTag(drivebase, 18); // Replace `1` with your desired tag ID
-  public final AprilTag aprilTag19 = new AprilTag(drivebase, 19); // Replace `1` with your desired tag ID
-  public final AprilTag aprilTag20 = new AprilTag(drivebase, 20); // Replace `1` with your desired tag ID
-  public final AprilTag aprilTag21 = new AprilTag(drivebase, 21); // Replace `1` with your desired tag ID
-  public final AprilTag aprilTag22 = new AprilTag(drivebase, 22); // Replace `1` with your desired tag ID
+  public ElevatorSystem Elevator = new ElevatorSystem(driverXboxControllerTwo);
+
+  // public AprilTagActions AprilTagActions  = new AprilTagActions(drivebase, driverXbox);
+  public Limelight limelight = new Limelight("limelight");
 
 
   // Applies deadbands and inverts controls because joysticks
@@ -119,9 +115,6 @@ public class RobotContainer
 
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Selected", autoChooser);
-
-    // boolean tagVisible = aprilTag22.isTargetTagVisible();
-    // System.out.println("Is tag visible? " + tagVisible);
     
   }
 
@@ -132,7 +125,8 @@ public class RobotContainer
    * {@link CommandXboxController Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller PS4}
    * controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight joysticks}.
    */
-  private void configureBindings()
+
+   private void configureBindings()
   {
     if (DriverStation.isTest())
     {
@@ -162,17 +156,6 @@ public class RobotContainer
       driverXbox.rightBumper().onTrue(Commands.none());
       drivebase.setDefaultCommand(
           !RobotBase.isSimulation() ? driveFieldOrientedDirectAngle : driveFieldOrientedDirectAngleSim);
-
-      // If Target Tag is Visible
-        driverXbox.x().onTrue(Commands.runOnce(() -> {
-          if (this.aprilTag22.isTargetTagVisible()) {
-            System.out.println("Pressed X & Target Visible.");
-            // Drive forward with a velocity of 1 meter per second
-            drivebase.drive(new Translation2d(1.0, 0.0), 0, false);
-        } else {
-            System.out.println("Pressed X but Target Not Visible.");
-        }
-        }));
         
     }
   }
