@@ -8,39 +8,39 @@ import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
-
-import com.ctre.phoenix6.hardware.CANrange;
-import com.ctre.phoenix6.configs.CANrangeConfiguration;
 import com.ctre.phoenix6.StatusSignal;
 
 
 
 public class ElevatorSystem {
-
     private XboxController xboxControllerOne;
 
+    // Elevator Speed Constants
     private double elevatorSpeed = 0.70;
     private double elevatorSpeedSlow = 0.05;
 
-    private double elevatorPositionL4 = 2150.00;
-    private double elevatorPositionL3 = 1015.00;
+    // Elevator Height Position Constants
+    private double ElevatorHeightMin = 0.00;
     private double elevatorPositionL2 = 365.00;
+    private double elevatorPositionL3 = 1015.00;
+    private double elevatorPositionL4 = 2150.00;
 
+    // Head Speed Constants
     private double headSpeed = 0.50;
-
     private double headSpeedSlow = 0.10;
+
+    // Intake Wheels Constant
     private double feedMotorSpeed = 0.80;
 
+    // Universal OFF Constant
     private double off = 0.00;
 
 
-    // Head Pivot Encoder #2 - MIN & MAX
+    // Head Pivoting Angle Constants - MIN & MAX
     private double baseAngle = 115.00; //<-------------------------
     private double headAngleL4 = baseAngle - 44;
     private double headAngleL3 = baseAngle - 29;
@@ -48,19 +48,15 @@ public class ElevatorSystem {
     private double headMaxOutAngle = baseAngle - 70; // baseAngle - 80;
     private double headDisabledAngle = baseAngle - 25;
 
-    private double ElevatorHeightMin = 0.00;
-
-
-
-
 
     public ElevatorSystem(XboxController xboxControllerOne) {
         this.xboxControllerOne = xboxControllerOne;
     }
 
+
+
     // public static DutyCycleEncoder hexEncoderOne = new DutyCycleEncoder(0);
     public static DutyCycleEncoder headEncoder = new DutyCycleEncoder(1);
-    public static DutyCycleEncoder hexEncoderThree = new DutyCycleEncoder(2);
     
     final CANrange loadSensor = new CANrange(30);
 
@@ -113,6 +109,7 @@ public class ElevatorSystem {
             }
         }
     }
+
     // Set the position of the elevator
     public void setElevatorPosition(double targetPosition) {
         if (headEncoder.get() * 360 < headDisabledAngle) {
@@ -123,23 +120,13 @@ public class ElevatorSystem {
             double currentPosition = ElevatorEncoderLeft.getPosition() * 360;
 
             if (currentPosition < speedGate1 || currentPosition > speedGate2) {
-                if (currentPosition < posGate1) {
-                    runElevatorUp(elevatorSpeed);
-                }
-                else if (currentPosition > posGate2) {
-                    runElevatorDown(elevatorSpeed);
-                } else {
-                    runElevatorStop();
-                } 
+                if (currentPosition < posGate1) { runElevatorUp(elevatorSpeed); }
+                else if (currentPosition > posGate2) { runElevatorDown(elevatorSpeed); } 
+                else { runElevatorStop(); } 
             } else {
-                if (currentPosition < posGate1) {
-                    runElevatorUp(elevatorSpeedSlow);
-                }
-                else if (currentPosition > posGate2) {
-                    runElevatorDown(elevatorSpeedSlow);
-                } else {
-                    runElevatorStop();
-                }
+                if (currentPosition < posGate1) { runElevatorUp(elevatorSpeedSlow); }
+                else if (currentPosition > posGate2) { runElevatorDown(elevatorSpeedSlow); } 
+                else { runElevatorStop(); }
             }
         }
 
@@ -160,27 +147,15 @@ public class ElevatorSystem {
         double angleGateTwo = targetAngle +1;
 
         if (currentAngle < speedGateOne || currentAngle > speedGateTwo) { 
-            if (currentAngle < angleGateOne) {
-                runHeadIn(headSpeed);
-    
-            } else if (currentAngle > angleGateTwo) {
-                runHeadOut(headSpeed);
-            }
-            else {
-                runHeadStop();
-            }
+            if (currentAngle < angleGateOne) { runHeadIn(headSpeed); } 
+            else if (currentAngle > angleGateTwo) { runHeadOut(headSpeed); }
+            else { runHeadStop(); }
 
         } else {
             // if angle is within the speed gate range then slow down the headSpeed
-            if (currentAngle < angleGateOne) {
-                runHeadIn(headSpeedSlow);
-    
-            } else if (currentAngle > angleGateTwo) {
-                runHeadOut(headSpeedSlow);
-            }
-            else {
-                runHeadStop();
-            }
+            if (currentAngle < angleGateOne) { runHeadIn(headSpeedSlow); }
+            else if (currentAngle > angleGateTwo) { runHeadOut(headSpeedSlow); }
+            else { runHeadStop(); }
         }
 
     }
@@ -190,8 +165,8 @@ public class ElevatorSystem {
 
         StatusSignal<Distance> distanceSignal = loadSensor.getDistance();
         distanceSignal.refresh();
-        double headSensorValue = distanceSignal.getValueAsDouble()*1000;
 
+        double headSensorValue = distanceSignal.getValueAsDouble()*1000;
         double ElevatorPositionLeft = ElevatorEncoderLeft.getPosition() * 360;
         double ElevatorPositionRight = ElevatorEncoderRight.getPosition() * 360;
         double headAngle = headEncoder.get() *360;
@@ -211,19 +186,6 @@ public class ElevatorSystem {
         } else {
             feedMotor.set(off);
         }
-
-
-
-
-
-        // if (xboxControllerOne.getRightStickButton()) {
-        //     headPivotMotor.set(-0.05);
-        // } else {
-        //     headPivotMotor.set(off);
-        // }
-
-
-
 
 
         // Set head to L2 position
@@ -247,20 +209,12 @@ public class ElevatorSystem {
             commandHeadAngle(headAngleL4);          // Move head to L2 angle
 
         }
-
-        
         // Set head to load position
         else if (xboxControllerOne.getXButton()) {
             commandSetHeight(ElevatorHeightMin);   // Set elevator position
             commandHeadAngle(baseAngle);          // Move head to L2 angle
         }
 
-
-        // Zero the elevator encoder.
-        if (xboxControllerOne.getBackButtonPressed()) {
-            ElevatorEncoderLeft.setPosition(0.00);
-            ElevatorEncoderRight.setPosition(0.00);
-        }
 
 
         // Sensor functionality
@@ -285,6 +239,7 @@ public class ElevatorSystem {
             else if (xboxControllerOne.getLeftY() > 0.50) {
                 runElevatorDown(elevatorSpeed);
             }
+
             else if (xboxControllerOne.getLeftStickButton()) {
                 ElevatorLeft.set(-elevatorSpeedSlow);
                 ElevatorRight.set(elevatorSpeedSlow);
@@ -307,7 +262,20 @@ public class ElevatorSystem {
                 runHeadStop();
             }
 
+            // Zero the elevator encoder.
+            if (xboxControllerOne.getBackButtonPressed()) {
+                ElevatorEncoderLeft.setPosition(0.00);
+                ElevatorEncoderRight.setPosition(0.00);
+            }
+
         }
+
+        // Make head move really slow without any angle restriction.
+        // if (xboxControllerOne.getRightStickButton()) {
+        //     headPivotMotor.set(-0.05);
+        // } else {
+        //     headPivotMotor.set(off);
+        // }
 
 
     }
@@ -319,11 +287,9 @@ public class ElevatorSystem {
     public void commandRunIntake(double seconds) {
         Timer timer = new Timer();
         boolean loaded = false;
-
         while (timer.get() < seconds && loaded == false) {
             System.out.println(timer.get());
             runHeadIntake();
-
         }
         runHeadIntakeStop();
     }
