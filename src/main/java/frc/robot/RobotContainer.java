@@ -17,7 +17,6 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 
 import limelight.Limelight;
-
 import java.io.File;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -40,6 +39,7 @@ public class RobotContainer {
   final XboxController driverOne = new XboxController(0);
   final XboxController driverTwo = new XboxController(1);
 
+  public SecondHead SecondHead = new SecondHead(driverOne);
   public ElevatorSystem ElevatorSystem = new ElevatorSystem(driverTwo);
   public LimeLightSystem LimeLightSystem  = new LimeLightSystem(drivebase, driverOne);
   public Limelight limelight = new Limelight("limelight");
@@ -54,7 +54,7 @@ public class RobotContainer {
       () -> MathUtil.applyDeadband(-driverOne.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
       () -> MathUtil.applyDeadband(-driverOne.getLeftX(), OperatorConstants.LEFT_X_DEADBAND),
       () -> -driverOne.getRightX(),
-      () -> -driverOne.getRightY()); 
+      () -> -driverOne.getRightY());
 
   // Applies deadbands and inverts controls because joysticks
   // are back-right positive while robot
@@ -78,6 +78,10 @@ public class RobotContainer {
   {
     // Configure the trigger bindings
     configureBindings();
+
+    if (driverOne.getAButtonPressed()) {
+          drivebase.zeroGyro();
+    }
 
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Selected", autoChooser);

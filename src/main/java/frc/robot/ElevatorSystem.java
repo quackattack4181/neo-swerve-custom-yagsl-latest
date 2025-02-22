@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
@@ -18,6 +19,8 @@ import com.ctre.phoenix6.StatusSignal;
 
 public class ElevatorSystem {
     private XboxController xboxControllerOne;
+    // private XboxController xboxControllerTwo;
+    // private SwerveSubsystem drivebase;
 
     // Elevator Speed Constants
     private double elevatorSpeed = 0.70;
@@ -25,9 +28,11 @@ public class ElevatorSystem {
 
     // Elevator Height Position Constants
     private double ElevatorHeightMin = 0.00;
-    private double elevatorPositionL2 = 365.00;
-    private double elevatorPositionL3 = 1015.00;
-    private double elevatorPositionL4 = 2150.00;
+    private double elevatorPositionL2 = 570.00;
+    // private double elevatorPositionL2 = 365.00;
+    private double elevatorPositionL3 = 1220.00;
+    // private double elevatorPositionL3 = 1015.00;
+    private double elevatorPositionL4 = 2180.00;
 
     // Head Speed Constants
     private double headSpeed = 0.50;
@@ -42,11 +47,11 @@ public class ElevatorSystem {
 
     // Head Pivoting Angle Constants - MIN & MAX
     private double baseAngle = 115.00; //<-------------------------
-    private double headAngleL4 = baseAngle - 44;
+    private double headAngleL4 = baseAngle - 20; //44;
     private double headAngleL3 = baseAngle - 29;
     private double headAngleL2 = baseAngle - 29;
     private double headMaxOutAngle = baseAngle - 70; // baseAngle - 80;
-    private double headDisabledAngle = baseAngle - 25;
+    private double headDisabledAngle = baseAngle - 15;
 
 
     public ElevatorSystem(XboxController xboxControllerOne) {
@@ -160,6 +165,14 @@ public class ElevatorSystem {
 
     }
 
+    // public void enableDriving() {
+    //     drivebase.driveCommand(
+    //         () -> MathUtil.applyDeadband(-xboxControllerTwo.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
+    //         () -> MathUtil.applyDeadband(-xboxControllerTwo.getLeftX(), OperatorConstants.LEFT_X_DEADBAND),
+    //         () -> -xboxControllerTwo.getRightX(),
+    //         () -> -xboxControllerTwo.getRightY());
+    // }
+
     // Add Controls now...
     public void update() {
 
@@ -240,15 +253,22 @@ public class ElevatorSystem {
                 runElevatorDown(elevatorSpeed);
             }
 
+            // Override to lower the elevator manually
             else if (xboxControllerOne.getLeftStickButton()) {
                 ElevatorLeft.set(-elevatorSpeedSlow);
                 ElevatorRight.set(elevatorSpeedSlow);
             }
 
             // When the joystick is not active then stop the elevator
-            else {
-                runElevatorStop();
+            else { runElevatorStop(); }
+
+            // Zero the elevator encoder.
+            if (xboxControllerOne.getBackButtonPressed()) {
+                ElevatorEncoderLeft.setPosition(0.00);
+                ElevatorEncoderRight.setPosition(0.00);
             }
+
+
 
             // HEAD Joystick pushed forward
             if (xboxControllerOne.getRightY() < -0.50) {
@@ -258,16 +278,7 @@ public class ElevatorSystem {
             else if (xboxControllerOne.getRightY() > 0.50) {
                 setHeadAngle(baseAngle);
             }
-            else {
-                runHeadStop();
-            }
-
-            // Zero the elevator encoder.
-            if (xboxControllerOne.getBackButtonPressed()) {
-                ElevatorEncoderLeft.setPosition(0.00);
-                ElevatorEncoderRight.setPosition(0.00);
-            }
-
+            else { runHeadStop(); }
         }
 
         // Make head move really slow without any angle restriction.
@@ -277,22 +288,18 @@ public class ElevatorSystem {
         //     headPivotMotor.set(off);
         // }
 
-
     }
-
-
 
 
     // Moves head out to certain angle.
-    public void commandRunIntake(double seconds) {
-        Timer timer = new Timer();
-        boolean loaded = false;
-        while (timer.get() < seconds && loaded == false) {
-            System.out.println(timer.get());
-            runHeadIntake();
-        }
-        runHeadIntakeStop();
-    }
+    // public void commandRunIntake(double seconds) {
+    //     Timer timer = new Timer();
+    //     boolean loaded = false;
+    //     while (timer.get() < seconds && loaded == false) {
+    //         runHeadIntake();
+    //     }
+    //     runHeadIntakeStop();
+    // }
 
     // Moves head out to certain angle.
     public void commandHeadAngle(double headAngle) {
@@ -301,6 +308,7 @@ public class ElevatorSystem {
         double gate1 = headAngle - 1;
         double gate2 = headAngle + 1;
         while (timer.get() < 5.00 && currentAngle < gate1 || currentAngle > gate2) {
+            // enableDriving();
             setHeadAngle(headAngle);
             currentAngle = headEncoder.get() *360;
         }
@@ -313,6 +321,7 @@ public class ElevatorSystem {
         double gate1 = height - 10;
         double gate2 = height + 10;
         while (timer.get() < 5.00 && currentHeight < gate1 || currentHeight > gate2) {
+            // enableDriving();
             setElevatorPosition(height);
             currentHeight = ElevatorEncoderLeft.getPosition() * 360;
         }

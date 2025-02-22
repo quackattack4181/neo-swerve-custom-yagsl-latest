@@ -31,6 +31,13 @@ public class LimeLightSystem {
     // swerveSubsystem.drive(new Translation2d(0.2, 0.0), 0, false); // Drive Forward
     // swerveSubsystem.drive(new Translation2d(-0.2, 0.0), 0, false); // Drive Backwards
 
+    public void driveForward(double speed) {
+        swerveSubsystem.drive(new Translation2d(speed, 0.00), 0, false);
+    };
+    public void driveBackward(double speed) {
+        swerveSubsystem.drive(new Translation2d(-speed, 0.00), 0, false);
+    };
+
 
     public void driveLeft(double speed) {
         swerveSubsystem.drive(new Translation2d(0.0, speed), 0, false);
@@ -38,48 +45,110 @@ public class LimeLightSystem {
     public void driveRight(double speed) {
         swerveSubsystem.drive(new Translation2d(0.0, -speed), 0, false);
     };
+
     public void driveStop() {
         swerveSubsystem.drive(new Translation2d(0.0, 0.0), 0, false);
     };
 
+    public void driveTX(double currentTX, double targetTX) {
+        // If not centered drive to the right.
+        if (currentTX > targetTX + 1 && currentTX < targetTX + 5) { driveRight(0.20); }
+        else if (currentTX > targetTX + 5) { driveRight(0.40); }
+        else if (currentTX > targetTX + 10) { driveRight(0.80); }
+        else if (currentTX > targetTX + 15) { driveRight(1.60); }
+
+        // If not centered drive to the left.
+        else if (currentTX < targetTX - 1 && currentTX > targetTX - 5) { driveLeft(0.20); }
+        else if (currentTX < targetTX - 5) { driveLeft(0.40); }
+        else if (currentTX < targetTX - 10) { driveLeft(0.80); }
+        else if (currentTX < targetTX - 15) { driveLeft(1.60); }
+
+        // Stop the robot.
+        else { driveStop(); }
+    }
 
 
-    public void runCenterRobotOnTag() {
+    public void driveTA(double currentTA, double targetTA) {
+        // If not centered drive to the right.
+        if (currentTA > targetTA + 0.25) { driveBackward(0.20); }
+        else if (currentTA < targetTA - 7) { driveForward(0.75); }
+        else if (currentTA < targetTA - 5) { driveForward(0.50); }
+        else if (currentTA < targetTA - 3) { driveForward(0.25); }
+
+        // Stop the robot.
+        else { driveStop(); }
+    }
+
+
+    public void runCenterRobotOnLeftTag() {
         Robot.getInstance().m_robotContainer.limelight.getLatestResults().ifPresent((LimelightResults result) -> {
             // If a tag is visible run this code.
             if (result.targets_Fiducials.length > 0) {
                 final double tagID = result.targets_Fiducials[0].fiducialID; // Tag ID for currently visible Tag
 
                 // Get the tag fiducial values
-                final double tx = result.targets_Fiducials[0].tx;
-                final double ty = result.targets_Fiducials[0].ty;
-                final double ta = result.targets_Fiducials[0].ta;
+                final double currentTX = result.targets_Fiducials[0].tx;
+                // final double currentTY = result.targets_Fiducials[0].ty;
+                // final double currentTA = result.targets_Fiducials[0].ta;
 
                 // Blue Side Reef April Tags
                 if (tagID >= 17 && tagID <= 22 ) {
-
-                    // If not centered drive to the right.
-                    if (tx > 1 && tx < 7) { driveRight(0.25); }
-                    else if (tx > 7) { driveRight(0.50); }
-                    else if (tx > 15) { driveRight(1.50); }
-
-                    // If not centered drive to the left.
-                    else if (tx < -1 && tx > -7) { driveLeft(0.25); }
-                    else if (tx < -7) { driveLeft(0.50); }
-                    else if (tx < -15) { driveLeft(1.50); }
-
-                    // Stop the robot.
-                    else { driveStop(); }
-
-                    // prints the current tag and variables to the terminal
-                    System.out.println("BLUE TAG ID: "+tagID+" TX: "+String.format("%.3f", tx)+" TY: "+String.format("%.3f", ty)+" TA: "+String.format("%.3f", ta));
+                    driveTX(currentTX, -5.00);
                 }
 
                 // Red Side Reef April Tags
                 if (tagID >= 6 && tagID <= 11 ) {
+                    driveTX(currentTX, -5.00);
+                }
 
-                    // prints the current tag and variables to the terminal
-                    System.out.println("RED TAG ID: "+tagID+" TX: "+String.format("%.3f", tx)+" TY: "+String.format("%.3f", ty)+" TA: "+String.format("%.3f", ta));
+            }
+        });
+    }
+    // public void runCenterRobotOnRightTag() {
+    //     Robot.getInstance().m_robotContainer.limelight.getLatestResults().ifPresent((LimelightResults result) -> {
+    //         // If a tag is visible run this code.
+    //         if (result.targets_Fiducials.length > 0) {
+    //             final double tagID = result.targets_Fiducials[0].fiducialID; // Tag ID for currently visible Tag
+
+    //             // Get the tag fiducial values
+    //             final double currentTX = result.targets_Fiducials[0].tx;
+    //             // final double currentTY = result.targets_Fiducials[0].ty;
+    //             // final double currentTA = result.targets_Fiducials[0].ta;
+
+    //             // Blue Side Reef April Tags
+    //             if (tagID >= 17 && tagID <= 22 ) {
+    //                 driveTX(currentTX, -20.00);
+    //             }
+
+    //             // Red Side Reef April Tags
+    //             if (tagID >= 6 && tagID <= 11 ) {
+    //                 driveTX(currentTX, -20.00);
+    //             }
+
+    //         }
+    //     });
+    // }
+
+    public void runCrawlForward() {
+        Robot.getInstance().m_robotContainer.limelight.getLatestResults().ifPresent((LimelightResults result) -> {
+            // If a tag is visible run this code.
+            if (result.targets_Fiducials.length > 0) {
+                final double tagID = result.targets_Fiducials[0].fiducialID; // Tag ID for currently visible Tag
+
+                // Get the tag fiducial values
+                // final double currentTX = result.targets_Fiducials[0].tx;
+                // final double currentTY = result.targets_Fiducials[0].ty;
+                final double currentTA = result.targets_Fiducials[0].ta*100;
+
+                // Blue Side Reef April Tags
+                if (tagID >= 17 && tagID <= 22 ) {
+
+                    driveTA(currentTA, 13);}
+
+                // Red Side Reef April Tags
+                if (tagID >= 6 && tagID <= 11 ) {
+
+                    driveTA(currentTA, 13);
                 }
 
             }
@@ -88,10 +157,23 @@ public class LimeLightSystem {
 
     public void update() {
 
-        // If X button is currently held down
-        if (xboxDriver.getXButton()) {
-            runCenterRobotOnTag();
+        // Right side of POV
+        if (xboxDriver.getPOV() == 0 ) {
+            System.out.println("Forward");
+            runCrawlForward();
         }
+        // Right side of POV
+        if (xboxDriver.getPOV() == 90 ) {
+            System.out.println("Right");
+            // runCenterRobotOnRightTag();
+
+        }
+        // Left side of POV
+        if (xboxDriver.getPOV() == 270 ) {
+            System.out.println("Left");
+            runCenterRobotOnLeftTag();
+        }
+
     }
 }
 
