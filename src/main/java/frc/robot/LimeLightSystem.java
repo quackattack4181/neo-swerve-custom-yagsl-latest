@@ -81,7 +81,31 @@ public class LimeLightSystem {
 
 
     public void runCenterRobotOnLeftTag() {
-        Robot.getInstance().m_robotContainer.limelight.getLatestResults().ifPresent((LimelightResults result) -> {
+        Robot.getInstance().m_robotContainer.limeLightLeft.getLatestResults().ifPresent((LimelightResults result) -> {
+            // If a tag is visible run this code.
+            if (result.targets_Fiducials.length > 0) {
+                final double tagID = result.targets_Fiducials[0].fiducialID; // Tag ID for currently visible Tag
+
+                // Get the tag fiducial values
+                final double currentTX = result.targets_Fiducials[0].tx;
+                // final double currentTY = result.targets_Fiducials[0].ty;
+                // final double currentTA = result.targets_Fiducials[0].ta;
+
+                // Blue Side Reef April Tags
+                if (tagID >= 17 && tagID <= 22 ) {
+                    driveTX(currentTX, -6.00);
+                }
+
+                // Red Side Reef April Tags
+                if (tagID >= 6 && tagID <= 11 ) {
+                    driveTX(currentTX, -6.00);
+                }
+
+            }
+        });
+    }
+    public void runCenterRobotOnRightTag() {
+        Robot.getInstance().m_robotContainer.limeLightRight.getLatestResults().ifPresent((LimelightResults result) -> {
             // If a tag is visible run this code.
             if (result.targets_Fiducials.length > 0) {
                 final double tagID = result.targets_Fiducials[0].fiducialID; // Tag ID for currently visible Tag
@@ -104,33 +128,10 @@ public class LimeLightSystem {
             }
         });
     }
-    // public void runCenterRobotOnRightTag() {
-    //     Robot.getInstance().m_robotContainer.limelight.getLatestResults().ifPresent((LimelightResults result) -> {
-    //         // If a tag is visible run this code.
-    //         if (result.targets_Fiducials.length > 0) {
-    //             final double tagID = result.targets_Fiducials[0].fiducialID; // Tag ID for currently visible Tag
-
-    //             // Get the tag fiducial values
-    //             final double currentTX = result.targets_Fiducials[0].tx;
-    //             // final double currentTY = result.targets_Fiducials[0].ty;
-    //             // final double currentTA = result.targets_Fiducials[0].ta;
-
-    //             // Blue Side Reef April Tags
-    //             if (tagID >= 17 && tagID <= 22 ) {
-    //                 driveTX(currentTX, -20.00);
-    //             }
-
-    //             // Red Side Reef April Tags
-    //             if (tagID >= 6 && tagID <= 11 ) {
-    //                 driveTX(currentTX, -20.00);
-    //             }
-
-    //         }
-    //     });
-    // }
 
     public void runCrawlForward() {
-        Robot.getInstance().m_robotContainer.limelight.getLatestResults().ifPresent((LimelightResults result) -> {
+        // Left side of POV
+        Robot.getInstance().m_robotContainer.limeLightRight.getLatestResults().ifPresent((LimelightResults result) -> {
             // If a tag is visible run this code.
             if (result.targets_Fiducials.length > 0) {
                 final double tagID = result.targets_Fiducials[0].fiducialID; // Tag ID for currently visible Tag
@@ -150,7 +151,6 @@ public class LimeLightSystem {
 
                     driveTA(currentTA, 13);
                 }
-
             }
         });
     }
@@ -164,14 +164,12 @@ public class LimeLightSystem {
         }
         // Right side of POV
         if (xboxDriver.getPOV() == 90 ) {
-            System.out.println("Right");
-            // runCenterRobotOnRightTag();
+            runCenterRobotOnLeftTag();
 
         }
         // Left side of POV
         if (xboxDriver.getPOV() == 270 ) {
-            System.out.println("Left");
-            runCenterRobotOnLeftTag();
+            runCenterRobotOnRightTag();
         }
 
     }

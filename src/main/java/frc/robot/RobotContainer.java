@@ -42,7 +42,8 @@ public class RobotContainer {
   public SecondHead SecondHead = new SecondHead(driverOne);
   public ElevatorSystem ElevatorSystem = new ElevatorSystem(driverTwo);
   public LimeLightSystem LimeLightSystem  = new LimeLightSystem(drivebase, driverOne);
-  public Limelight limelight = new Limelight("limelight");
+  public Limelight limeLightLeft = new Limelight("limelight-left");
+  public Limelight limeLightRight = new Limelight("limelight-right");
 
 
   // Applies deadbands and inverts controls because joysticks
