@@ -64,7 +64,7 @@ public class SwerveSubsystem extends SubsystemBase
   /**
    * AprilTag field layout.
    */
-  private final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
+  private final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2025ReefscapeWelded.loadAprilTagLayoutField();
   /**
    * Enable vision odometry updates while driving.
    */
@@ -330,7 +330,7 @@ public class SwerveSubsystem extends SubsystemBase
     return SwerveDriveTest.generateSysIdCommand(
         SwerveDriveTest.setDriveSysIdRoutine(
             new Config(),
-            this, swerveDrive, 12),
+            this, swerveDrive, 12, visionDriveTest),
         3.0, 5.0, 3.0);
   }
 
@@ -679,9 +679,4 @@ public class SwerveSubsystem extends SubsystemBase
     swerveDrive.addVisionMeasurement(new Pose2d(3, 3, Rotation2d.fromDegrees(65)), Timer.getFPGATimestamp());
   }
 
-
-  public void stop() {
-    // Call the drive method with zero translation and zero rotation to stop all motion
-    swerveDrive.drive(new Translation2d(0, 0), 0, false, visionDriveTest);
-}
 }
