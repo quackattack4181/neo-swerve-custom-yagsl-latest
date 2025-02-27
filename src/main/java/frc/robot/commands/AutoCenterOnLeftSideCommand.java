@@ -5,6 +5,7 @@ import frc.robot.LimeLightSystem;
 
 public class AutoCenterOnLeftSideCommand extends Command {
     private final LimeLightSystem limeLightSystem;
+    private final double targetTX = 5.0; // ✅ Adjust target TX for left-side alignment
 
     public AutoCenterOnLeftSideCommand(LimeLightSystem limeLightSystem) {
         this.limeLightSystem = limeLightSystem;
@@ -16,16 +17,18 @@ public class AutoCenterOnLeftSideCommand extends Command {
 
     @Override
     public void execute() {
-        limeLightSystem.runCenterRobotOnRightTag(); // ✅ Centers on left-side tags
-    }
-
-    @Override
-    public void end(boolean interrupted) {
-        limeLightSystem.driveStop(); // ✅ Stops when the command ends
+        double currentTX = limeLightSystem.getCurrentTX(); // ✅ Get TX from Limelight
+        limeLightSystem.driveTX(currentTX, targetTX);
     }
 
     @Override
     public boolean isFinished() {
-        return false; // ✅ Runs until PathPlanner cancels it
+        double currentTX = limeLightSystem.getCurrentTX();
+        return Math.abs(currentTX - targetTX) <= 1; // ✅ Stops when within ±1 of target
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        limeLightSystem.driveStop(); // ✅ Stop movement when command ends
     }
 }

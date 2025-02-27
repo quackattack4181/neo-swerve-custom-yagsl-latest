@@ -26,6 +26,7 @@ import frc.robot.commands.AutoShootCommand;
 import frc.robot.commands.SetElevatorHeight;
 import frc.robot.commands.SetHeadAngle;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+import edu.wpi.first.wpilibj.DriverStation;
 
 import limelight.Limelight;
 import java.io.File;
@@ -34,6 +35,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 // import com.ctre.phoenix6.hardware.CANrange;
 // import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
@@ -117,6 +119,15 @@ public class RobotContainer {
 
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Selected", autoChooser);
+
+    boolean isBlueAlliance = DriverStation.getAlliance()
+            .map(alliance -> alliance == DriverStation.Alliance.Blue)
+            .orElse(false); // Default to Red if unknown
+
+    // ✅ Add mirrored PathPlanner autos to the chooser
+    autoChooser.setDefaultOption("Middle", new PathPlannerAuto("Middle", isBlueAlliance));
+    autoChooser.addOption("Left", new PathPlannerAuto("Left", isBlueAlliance));
+    autoChooser.addOption("Right", new PathPlannerAuto("Right", isBlueAlliance));
     
   }
 
@@ -342,6 +353,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+
     // An example command will be run in autonomous
     return autoChooser.getSelected();
   }

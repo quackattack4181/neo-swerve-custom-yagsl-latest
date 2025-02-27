@@ -38,6 +38,13 @@ public class LimeLightSystem extends SubsystemBase { // ✅ Extend SubsystemBase
         else { driveStop(); }
     }
 
+    public double getCurrentTA() {
+        return Robot.getInstance().m_robotContainer.limeLightLeft.getLatestResults()
+            .map(result -> result.targets_Fiducials.length > 0 ? result.targets_Fiducials[0].ta * 100 : 0)
+            .orElse((double) 0);
+    }
+    
+
     public void runCenterRobotOnLeftTag() {
         sideAlignLeft = false;
         Robot.getInstance().m_robotContainer.limeLightLeft.getLatestResults().ifPresent(result -> {
