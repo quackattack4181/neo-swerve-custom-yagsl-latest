@@ -47,13 +47,13 @@ public class HeadSystem extends SubsystemBase { // ✅ Extend SubsystemBase
 
     public void runHeadIn(double headSpeed) {
         if (headEncoder.get() * 360 < baseAngle) {
-            headPivotMotor.set(-headSpeed);
+            headPivotMotor.set(headSpeed);
         }
     }
 
     public void runHeadOut(double headSpeed) {
         if (headEncoder.get() * 360 > headMaxOutAngle) {
-            headPivotMotor.set(headSpeed);
+            headPivotMotor.set(-headSpeed);
         }
     }
 

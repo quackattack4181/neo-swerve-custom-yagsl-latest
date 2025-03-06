@@ -32,18 +32,6 @@
         {
           "type": "named",
           "data": {
-            "name": "CrawlForward"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "CenterOnLeftSide"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
             "name": "AutoShoot"
           }
         },
@@ -85,7 +73,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "SetL3"
+                  "name": "SetL4"
                 }
               }
             ]
@@ -95,24 +83,6 @@
           "type": "named",
           "data": {
             "name": "CenterOnLeftSide"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "CrawlForward"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "CenterOnLeftSide"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "AutoShoot"
           }
         }
       ]

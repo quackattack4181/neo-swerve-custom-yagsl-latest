@@ -18,7 +18,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.AutoCenterOnLeftSideCommand;
 import frc.robot.commands.AutoCenterOnRightSideCommand;
-import frc.robot.commands.AutoCrawlForwardCommand;
 import frc.robot.commands.AutoIntakeWithSensorCommand;
 import frc.robot.commands.AutoSetPositionCommand;
 import frc.robot.commands.AutoSetPositionCommandLoad;
@@ -56,8 +55,7 @@ public class RobotContainer {
 
   public HeadSystem HeadSystem = new HeadSystem();
   public ElevatorSystem ElevatorSystem = new ElevatorSystem();
-  // public ClimberSystem ClimberSystem = new ClimberSystem();
-  public SecondHeadSystem SecondHeadSystem = new SecondHeadSystem();
+  public ClimberSystem ClimberSystem = new ClimberSystem();                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
   public LimeLightSystem LimeLightSystem  = new LimeLightSystem(drivebase);
 
   public Limelight limeLightLeft = new Limelight("limelight-left");
@@ -107,11 +105,9 @@ public class RobotContainer {
     // ✅ Register "AutoShoot" command for PathPlanner
     NamedCommands.registerCommand("AutoShoot", new AutoShootCommand(HeadSystem, -HeadSystem.feedMotorSpeed, 1.0));
 
-    
-    // ✅ Register Commands for PathPlanner
-    NamedCommands.registerCommand("CrawlForward", new AutoCrawlForwardCommand(LimeLightSystem));
-    NamedCommands.registerCommand("CenterOnLeftSide", new AutoCenterOnLeftSideCommand(LimeLightSystem));
-    NamedCommands.registerCommand("CenterOnRightSide", new AutoCenterOnRightSideCommand(LimeLightSystem));
+    // ✅ Register Commands for PathPlanner (Updated)
+    NamedCommands.registerCommand("CenterOnLeftSide", new AutoCenterOnLeftSideCommand(LimeLightSystem));  // ✅ Aligns TX & TA
+    NamedCommands.registerCommand("CenterOnRightSide", new AutoCenterOnRightSideCommand(LimeLightSystem)); // ✅ Aligns TX & TA
 
 
     // Configure the trigger bindings
@@ -231,22 +227,12 @@ public class RobotContainer {
     ));
 
     // ✅ Select Button: Move Head to L4 and Elevator to ElevatorSystem.elevatorClimbPosition
-    // driverTwo.back().onTrue(
-    //   new SequentialCommandGroup(
-    //       new SetHeadAngle(HeadSystem.headAngleL4, HeadSystem),
-    //       new SetElevatorHeight(ElevatorSystem, ElevatorSystem.elevatorClimbPosition),
-    //       new SetHeadAngle(HeadSystem.headAngleL4, HeadSystem)
-    //   )
-    // );
+    driverTwo.start().onTrue(
+      new SequentialCommandGroup(
+          new SetHeadAngle(HeadSystem.headMaxOutAngle, HeadSystem),
+          new SetElevatorHeight(ElevatorSystem, ElevatorSystem.elevatorClimbPosition)
+      ));
 
-    // ✅ Select Button: Move Head to L4 and Elevator to elevatorClimbPosition
-    // driverTwo.back().onTrue(
-    //   new InstantCommand(() -> new SequentialCommandGroup(
-    //       new SetHeadAngle(HeadSystem.headAngleL4, HeadSystem),
-    //       new SetElevatorHeight(ElevatorSystem, ElevatorSystem.elevatorClimbPosition),
-    //       new SetHeadAngle(HeadSystem.headAngleL4, HeadSystem)
-    //   ).schedule()) // ✅ Schedule the SequentialCommandGroup
-    // );
 
     // ✅ Start Button: Toggle Elevator Hold Mode (Run Down for 15s OR Cancel)
     // driverTwo.start().toggleOnTrue(
@@ -283,62 +269,58 @@ public class RobotContainer {
 
   // D-Pad for driverTwo
   // ✅ D-Pad RIGHT (90°) -> Center on Left Tag
-  // driverTwo.povRight().whileTrue(
-  //     new RunCommand(() -> ClimberSystem.runClimbArmOutward())
-  // ).onFalse(
-  //   new InstantCommand(() -> ClimberSystem.runClimbArmStop())
-  // );
+  driverTwo.povRight().whileTrue(
+      new RunCommand(() -> ClimberSystem.runClimbArmOutward())
+  ).onFalse(
+    new InstantCommand(() -> ClimberSystem.runClimbArmStop())
+  );
 
-  // // ✅ D-Pad LEFT (270°) -> Center on Right Tag
-  // driverTwo.povLeft().whileTrue(
-  //     new RunCommand(() -> ClimberSystem.runClimbArmInward())
-  // ).onFalse(
-  //   new InstantCommand(() -> ClimberSystem.runClimbArmStop())
-  // );
+  // ✅ D-Pad LEFT (270°) -> Center on Right Tag
+  driverTwo.povLeft().whileTrue(
+      new RunCommand(() -> ClimberSystem.runClimbArmInward())
+  ).onFalse(
+    new InstantCommand(() -> ClimberSystem.runClimbArmStop())
+  );
   
 
 
 
   // Limelight controls.
 
-  // ✅ D-Pad UP (0°) -> Crawl Forward
-  driverOne.povUp().whileTrue(
-      new RunCommand(() -> LimeLightSystem.runCrawlForward(), LimeLightSystem)
-  );
+  // ✅ D-Pad RIGHT (90°) -> Auto Align to Left-Side AprilTags (Right-Side of Field)
+  driverOne.povRight()
+  .whileTrue(new AutoCenterOnRightSideCommand(LimeLightSystem))
+  .onFalse(new InstantCommand(() -> LimeLightSystem.driveStop(), LimeLightSystem));
 
-  // ✅ D-Pad RIGHT (90°) -> Center on Left Tag
-  driverOne.povRight().whileTrue(
-      new RunCommand(() -> LimeLightSystem.runCenterRobotOnLeftTag(), LimeLightSystem)
-  );
+  // ✅ D-Pad LEFT (270°) -> Auto Align to Right-Side AprilTags (Left-Side of Field)
+  driverOne.povLeft()
+  .whileTrue(new AutoCenterOnLeftSideCommand(LimeLightSystem))
+  .onFalse(new InstantCommand(() -> LimeLightSystem.driveStop(), LimeLightSystem));
 
-  // ✅ D-Pad LEFT (270°) -> Center on Right Tag
-  driverOne.povLeft().whileTrue(
-      new RunCommand(() -> LimeLightSystem.runCenterRobotOnRightTag(), LimeLightSystem)
-  );
 
 
 
 
 
   // ✅ Left Trigger (LT): Move the second head down
-  driverOne.leftTrigger(0.5).whileTrue(
-    new RunCommand(SecondHeadSystem::runHeadOut, SecondHeadSystem)
-  ).onFalse(new InstantCommand(SecondHeadSystem::runHeadStop, SecondHeadSystem)); // Return to default when released
+  // driverOne.leftTrigger(0.5).whileTrue(
+  //   new RunCommand(SecondHeadSystem::runHeadOut, SecondHeadSystem)
+  // ).onFalse(new InstantCommand(SecondHeadSystem::runHeadStop, SecondHeadSystem)); // Return to default when released
 
-  // ✅ Left Bumper (LB): Move the second head up/in
-  driverOne.leftBumper().whileTrue(
-    new RunCommand(SecondHeadSystem::runHeadIn, SecondHeadSystem)
-  ).onFalse(new InstantCommand(SecondHeadSystem::runHeadStop, SecondHeadSystem)); // Return to default when released
+  // // ✅ Left Bumper (LB): Move the second head up/in
+  // driverOne.leftBumper().whileTrue(
+  //   new RunCommand(SecondHeadSystem::runHeadIn, SecondHeadSystem)
+  // ).onFalse(new InstantCommand(SecondHeadSystem::runHeadStop, SecondHeadSystem)); // Return to default when released
 
-  // ✅ Right Bumper (RB): Run intake wheels forward (suck in)
-  driverOne.rightBumper().whileTrue(
-    new RunCommand(SecondHeadSystem::runHeadIntake, SecondHeadSystem)
-  ).onFalse(new InstantCommand(SecondHeadSystem::runHeadIntakeStop, SecondHeadSystem)); // Stop intake when released
+  // // ✅ Right Bumper (RB): Run intake wheels forward (suck in)
+  // driverOne.rightBumper().whileTrue(
+  //   new RunCommand(SecondHeadSystem::runHeadIntake, SecondHeadSystem)
+  // ).onFalse(new InstantCommand(SecondHeadSystem::runHeadIntakeStop, SecondHeadSystem)); // Stop intake when released
 
-  // ✅ Right Trigger (RT): Run intake wheels in reverse (shoot out)
-  driverOne.rightTrigger(0.5).whileTrue(
-    new RunCommand(SecondHeadSystem::runHeadIntakeReverse, SecondHeadSystem)
-  ).onFalse(new InstantCommand(SecondHeadSystem::runHeadIntakeStop, SecondHeadSystem)); // Stop intake when released
+  // // ✅ Right Trigger (RT): Run intake wheels in reverse (shoot out)
+  // driverOne.rightTrigger(0.5).whileTrue(
+  //   new RunCommand(SecondHeadSystem::runHeadIntakeReverse, SecondHeadSystem)
+  // ).onFalse(new InstantCommand(SecondHeadSystem::runHeadIntakeStop, SecondHeadSystem)); // Stop intake when released
 
 
 
