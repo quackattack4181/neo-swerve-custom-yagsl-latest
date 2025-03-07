@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase; // ✅ Import SubsystemBase
 public class HeadSystem extends SubsystemBase { // ✅ Extend SubsystemBase
 
     // Head Speed Constants
-    public double headSpeed = 0.50;
+    public double headSpeed = 0.35;
     public double headSpeedSlow = 0.10;
 
     // Intake Wheels Constant
@@ -31,7 +31,7 @@ public class HeadSystem extends SubsystemBase { // ✅ Extend SubsystemBase
 
     public boolean headEnabled = false;
 
-    public DutyCycleEncoder headEncoder = new DutyCycleEncoder(1);
+    public DutyCycleEncoder headEncoder = new DutyCycleEncoder(4);
 
     public final SparkMax feedMotor = new SparkMax(42, MotorType.kBrushless);
     public final SparkMax headPivotMotor = new SparkMax(43, MotorType.kBrushless);
@@ -48,6 +48,7 @@ public class HeadSystem extends SubsystemBase { // ✅ Extend SubsystemBase
     public void runHeadIn(double headSpeed) {
         if (headEncoder.get() * 360 < baseAngle) {
             headPivotMotor.set(headSpeed);
+            
         }
     }
 

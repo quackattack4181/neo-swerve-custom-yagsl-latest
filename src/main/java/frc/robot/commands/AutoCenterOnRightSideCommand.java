@@ -5,7 +5,7 @@ import frc.robot.LimeLightSystem;
 
 public class AutoCenterOnRightSideCommand extends Command {
     private final LimeLightSystem limeLightSystem;
-    private final double targetTX = 2.0; // ✅ Adjust TX target for right-side AprilTags
+    private final double targetTX = -6.0; // 2.0; // ✅ Adjust TX target for right-side AprilTags
     private final double targetTA = 12.5; // ✅ Adjust TA target for correct distance
 
     public AutoCenterOnRightSideCommand(LimeLightSystem limeLightSystem) {
@@ -34,15 +34,15 @@ public class AutoCenterOnRightSideCommand extends Command {
         // Face Forward-Left	    150°	-0.866	                 0.5
 
         
-        if (tagID == 18 || tagID == 7)       { headingX = 0.00;   headingY = 1.00;}
-        else if (tagID == 19 || tagID == 6)  { headingX = 0.866;  headingY = 0.50;}
-        else if (tagID == 20 || tagID == 11) { headingX = 0.866;  headingY = -0.50;}
-        else if (tagID == 21 || tagID == 10) { headingX = 0.00;   headingY = -1.00;}
-        else if (tagID == 22 || tagID == 9)  { headingX = -0.866; headingY = -0.50;}
-        else if (tagID == 17 || tagID == 8)  { headingX = -0.866; headingY = 0.50;}
+        // if (tagID == 18 || tagID == 7)       { headingX = 0.00;   headingY = 1.00;}
+        // else if (tagID == 19 || tagID == 6)  { headingX = 0.866;  headingY = 0.50;}
+        // else if (tagID == 20 || tagID == 11) { headingX = 0.866;  headingY = -0.50;}
+        // else if (tagID == 21 || tagID == 10) { headingX = 0.00;   headingY = -1.00;}
+        // else if (tagID == 22 || tagID == 9)  { headingX = -0.866; headingY = -0.50;}
+        // else if (tagID == 17 || tagID == 8)  { headingX = -0.866; headingY = 0.50;}
 
         // ✅ NEW: Aligns TX & TA simultaneously
-        limeLightSystem.driveToTarget(currentTX, targetTX, currentTA, targetTA, headingX, headingY);
+        limeLightSystem.driveToTarget(currentTX, targetTX, currentTA, targetTA);
     }
 
     @Override
