@@ -232,13 +232,6 @@ public class RobotContainer {
 
 
 
-    // ✅ Start Button: Toggle Elevator Hold Mode (Run Down for 15s OR Cancel)
-    // driverTwo.start().toggleOnTrue(
-    //   new RunCommand(() -> ElevatorSystem.runElevatorDown(ElevatorSystem.elevatorSpeedSlow), ElevatorSystem)
-    //       .withTimeout(15) // ✅ Stops automatically after 15 seconds if not toggled off
-    // );
-
-
 
     // Left Bumper controls elevator movement with joystick
     driverTwo.leftBumper().whileTrue(
@@ -265,19 +258,28 @@ public class RobotContainer {
 
 
 
-  // ✅ D-Pad RIGHT (90°) -> Move Climber Outward WHILE HELD (but limited to -300)
-  driverTwo.povRight()
-  .whileTrue(new RunCommand(() -> ClimberSystem.setClimbPosition(-300), ClimberSystem))
-  .onFalse(new InstantCommand(() -> ClimberSystem.runClimbArmStop(), ClimberSystem));
+  // D-Pad for driverTwo
+  // ✅ D-Pad RIGHT (90°) -> Center on Left Tag
+  driverTwo.povRight().whileTrue(
+      new RunCommand(() -> ClimberSystem.runClimbArmOutward())
+  ).onFalse(
+    new InstantCommand(() -> ClimberSystem.runClimbArmStop())
+  );
 
-  // ✅ D-Pad LEFT (270°) -> Move Climber Inward WHILE HELD (but limited to 0.0)
-  driverTwo.povLeft()
-  .whileTrue(new RunCommand(() -> ClimberSystem.setClimbPosition(0.0), ClimberSystem))
-  .onFalse(new InstantCommand(() -> ClimberSystem.runClimbArmStop(), ClimberSystem));
-
+  // ✅ D-Pad LEFT (270°) -> Center on Right Tag
+  driverTwo.povLeft().whileTrue(
+      new RunCommand(() -> ClimberSystem.runClimbArmInward())
+  ).onFalse(
+    new InstantCommand(() -> ClimberSystem.runClimbArmStop())
+  );
   
-  driverTwo.povUp().onTrue(new MoveClimberToPosition(ClimberSystem, -300));
+  driverTwo.povUp().onTrue(new MoveClimberToPosition(ClimberSystem, -350));
   driverTwo.povDown().onTrue(new MoveClimberToPosition(ClimberSystem, 0.0));
+
+  // ✅ START Button -> Reset Climber Encoder to 0
+  driverTwo.start().onTrue(
+    new InstantCommand(() -> ClimberSystem.climbMotorEncoder.setPosition(0.0), ClimberSystem)
+  );
 
 
 
