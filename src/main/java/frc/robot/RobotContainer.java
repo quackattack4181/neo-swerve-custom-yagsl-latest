@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -22,6 +23,7 @@ import frc.robot.commands.AutoIntakeWithSensorCommand;
 import frc.robot.commands.AutoSetPositionCommand;
 import frc.robot.commands.AutoSetPositionCommandLoad;
 import frc.robot.commands.AutoShootCommand;
+import frc.robot.commands.MoveClimberToPosition;
 import frc.robot.commands.SetElevatorHeight;
 import frc.robot.commands.SetHeadAngle;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
@@ -92,6 +94,8 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+
+    CameraServer.startAutomaticCapture();
 
     // ✅ Register Commands for PathPlanner
     NamedCommands.registerCommand("SetL2", new AutoSetPositionCommand(HeadSystem, ElevatorSystem, HeadSystem.headAngleL2, ElevatorSystem.elevatorPositionL2));
@@ -226,12 +230,6 @@ public class RobotContainer {
         new SetHeadAngle(HeadSystem.baseAngle, HeadSystem)
     ));
 
-    // ✅ Select Button: Move Head to L4 and Elevator to ElevatorSystem.elevatorClimbPosition
-    driverTwo.start().onTrue(
-      new SequentialCommandGroup(
-          new SetHeadAngle(HeadSystem.headMaxOutAngle, HeadSystem),
-          new SetElevatorHeight(ElevatorSystem, ElevatorSystem.elevatorClimbPosition)
-      ));
 
 
     // ✅ Start Button: Toggle Elevator Hold Mode (Run Down for 15s OR Cancel)
@@ -267,21 +265,19 @@ public class RobotContainer {
 
 
 
-  // D-Pad for driverTwo
-  // ✅ D-Pad RIGHT (90°) -> Center on Left Tag
-  driverTwo.povRight().whileTrue(
-      new RunCommand(() -> ClimberSystem.runClimbArmOutward())
-  ).onFalse(
-    new InstantCommand(() -> ClimberSystem.runClimbArmStop())
-  );
+  // ✅ D-Pad RIGHT (90°) -> Move Climber Outward WHILE HELD (but limited to -300)
+  driverTwo.povRight()
+  .whileTrue(new RunCommand(() -> ClimberSystem.setClimbPosition(-300), ClimberSystem))
+  .onFalse(new InstantCommand(() -> ClimberSystem.runClimbArmStop(), ClimberSystem));
 
-  // ✅ D-Pad LEFT (270°) -> Center on Right Tag
-  driverTwo.povLeft().whileTrue(
-      new RunCommand(() -> ClimberSystem.runClimbArmInward())
-  ).onFalse(
-    new InstantCommand(() -> ClimberSystem.runClimbArmStop())
-  );
+  // ✅ D-Pad LEFT (270°) -> Move Climber Inward WHILE HELD (but limited to 0.0)
+  driverTwo.povLeft()
+  .whileTrue(new RunCommand(() -> ClimberSystem.setClimbPosition(0.0), ClimberSystem))
+  .onFalse(new InstantCommand(() -> ClimberSystem.runClimbArmStop(), ClimberSystem));
+
   
+  driverTwo.povUp().onTrue(new MoveClimberToPosition(ClimberSystem, -300));
+  driverTwo.povDown().onTrue(new MoveClimberToPosition(ClimberSystem, 0.0));
 
 
 
@@ -298,29 +294,6 @@ public class RobotContainer {
   .onFalse(new InstantCommand(() -> LimeLightSystem.driveStop(), LimeLightSystem));
 
 
-
-
-
-
-  // ✅ Left Trigger (LT): Move the second head down
-  // driverOne.leftTrigger(0.5).whileTrue(
-  //   new RunCommand(SecondHeadSystem::runHeadOut, SecondHeadSystem)
-  // ).onFalse(new InstantCommand(SecondHeadSystem::runHeadStop, SecondHeadSystem)); // Return to default when released
-
-  // // ✅ Left Bumper (LB): Move the second head up/in
-  // driverOne.leftBumper().whileTrue(
-  //   new RunCommand(SecondHeadSystem::runHeadIn, SecondHeadSystem)
-  // ).onFalse(new InstantCommand(SecondHeadSystem::runHeadStop, SecondHeadSystem)); // Return to default when released
-
-  // // ✅ Right Bumper (RB): Run intake wheels forward (suck in)
-  // driverOne.rightBumper().whileTrue(
-  //   new RunCommand(SecondHeadSystem::runHeadIntake, SecondHeadSystem)
-  // ).onFalse(new InstantCommand(SecondHeadSystem::runHeadIntakeStop, SecondHeadSystem)); // Stop intake when released
-
-  // // ✅ Right Trigger (RT): Run intake wheels in reverse (shoot out)
-  // driverOne.rightTrigger(0.5).whileTrue(
-  //   new RunCommand(SecondHeadSystem::runHeadIntakeReverse, SecondHeadSystem)
-  // ).onFalse(new InstantCommand(SecondHeadSystem::runHeadIntakeStop, SecondHeadSystem)); // Stop intake when released
 
 
 

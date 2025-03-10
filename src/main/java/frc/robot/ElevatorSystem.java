@@ -15,11 +15,10 @@ public class ElevatorSystem extends SubsystemBase { // ✅ Extend SubsystemBase
 
     // Elevator Height Position Constants
     public double ElevatorHeightMin = 0.00;
-    public double elevatorPositionL2 = 570.00;
-    public double elevatorPositionL3 = 1220.00;
-    public double elevatorPositionL4 = 2200.00;
+    public double elevatorPositionL2 = 700.00;
+    public double elevatorPositionL3 = 1450.00;
+    public double elevatorPositionL4 = 2270.00;
 
-    public double elevatorClimbPosition = 610.00;
 
 
     // Universal OFF Constant

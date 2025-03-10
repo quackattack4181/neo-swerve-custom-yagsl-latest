@@ -21,13 +21,13 @@ public class HeadSystem extends SubsystemBase { // ✅ Extend SubsystemBase
     // Universal OFF Constant
     public double off = 0.00;
 
-    // Head Pivoting Angle Constants - MIN & MAX
+    // Head Pivoting Angle Constants - MIN & MAX   106
     public double baseAngle = 115.00;
-    public double headAngleL4 = baseAngle - 20;
-    public double headAngleL3 = baseAngle - 29;
-    public double headAngleL2 = baseAngle - 29;
+    public double headAngleL4 = baseAngle - 18;
+    public double headAngleL3 = baseAngle - 18;
+    public double headAngleL2 = baseAngle - 18;
     public double headMaxOutAngle = baseAngle - 70;
-    public double headDisabledAngle = baseAngle - 15;
+    public double headDisabledAngle = baseAngle - 10;
 
     public boolean headEnabled = false;
 
