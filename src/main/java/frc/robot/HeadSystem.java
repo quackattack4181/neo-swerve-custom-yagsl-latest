@@ -12,22 +12,22 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase; // ✅ Import SubsystemBase
 public class HeadSystem extends SubsystemBase { // ✅ Extend SubsystemBase
 
     // Head Speed Constants
-    public double headSpeed = 0.35;
-    public double headSpeedSlow = 0.10;
+    public double primaryHeadSpeed = Constants.CustomConstants.primaryHeadSpeed;
+    public double primaryHeadSpeedSlow = Constants.CustomConstants.primaryHeadSpeedSlow;
 
     // Intake Wheels Constant
-    public double feedMotorSpeed = 0.80;
+    public double feedMotorSpeed = Constants.CustomConstants.feedMotorSpeed;
 
     // Universal OFF Constant
     public double off = 0.00;
 
     // Head Pivoting Angle Constants - MIN & MAX   106
-    public double baseAngle = 115.00;
-    public double headAngleL4 = baseAngle - 18;
-    public double headAngleL3 = baseAngle - 18;
-    public double headAngleL2 = baseAngle - 18;
-    public double headMaxOutAngle = baseAngle - 70;
-    public double headDisabledAngle = baseAngle - 10;
+    public double baseAngle = Constants.CustomConstants.baseAngle;
+    public double headAngleL4 = Constants.CustomConstants.headAngleL4;
+    public double headAngleL3 = Constants.CustomConstants.headAngleL3;
+    public double headAngleL2 = Constants.CustomConstants.headAngleL2;
+    public double headMaxOutAngle = Constants.CustomConstants.headMaxOutAngle;
+    public double headDisabledAngle = Constants.CustomConstants.headDisabledAngle;
 
     public boolean headEnabled = false;
 
@@ -45,16 +45,16 @@ public class HeadSystem extends SubsystemBase { // ✅ Extend SubsystemBase
         feedMotor.set(off);
     }
 
-    public void runHeadIn(double headSpeed) {
+    public void runHeadIn(double primaryHeadSpeed) {
         if (headEncoder.get() * 360 < baseAngle) {
-            headPivotMotor.set(headSpeed);
+            headPivotMotor.set(primaryHeadSpeed);
             
         }
     }
 
-    public void runHeadOut(double headSpeed) {
+    public void runHeadOut(double primaryHeadSpeed) {
         if (headEncoder.get() * 360 > headMaxOutAngle) {
-            headPivotMotor.set(-headSpeed);
+            headPivotMotor.set(-primaryHeadSpeed);
         }
     }
 
@@ -71,17 +71,17 @@ public class HeadSystem extends SubsystemBase { // ✅ Extend SubsystemBase
 
         if (currentAngle < speedGateOne || currentAngle > speedGateTwo) {
             if (currentAngle < angleGateOne) {
-                runHeadIn(headSpeed);
+                runHeadIn(primaryHeadSpeed);
             } else if (currentAngle > angleGateTwo) {
-                runHeadOut(headSpeed);
+                runHeadOut(primaryHeadSpeed);
             } else {
                 runHeadStop();
             }
         } else {
             if (currentAngle < angleGateOne) {
-                runHeadIn(headSpeedSlow);
+                runHeadIn(primaryHeadSpeedSlow);
             } else if (currentAngle > angleGateTwo) {
-                runHeadOut(headSpeedSlow);
+                runHeadOut(primaryHeadSpeedSlow);
             } else {
                 runHeadStop();
             }

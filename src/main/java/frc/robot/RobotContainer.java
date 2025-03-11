@@ -285,6 +285,17 @@ public class RobotContainer {
 
   // Limelight controls.
 
+  // // ✅ D-Pad RIGHT (90°) -> Align with Right-Side Pole (Use Left Limelight)
+  // driverOne.povRight()
+  // .whileTrue(new RunCommand(() -> LimeLightSystem.alignToAprilTag(false), LimeLightSystem))
+  // .onFalse(new InstantCommand(() -> LimeLightSystem.driveStop(), LimeLightSystem));
+
+  // // ✅ D-Pad LEFT (270°) -> Align with Left-Side Pole (Use Right Limelight)
+  // driverOne.povLeft()
+  // .whileTrue(new RunCommand(() -> LimeLightSystem.alignToAprilTag(true), LimeLightSystem))
+  // .onFalse(new InstantCommand(() -> LimeLightSystem.driveStop(), LimeLightSystem));
+
+
   // ✅ D-Pad RIGHT (90°) -> Auto Align to Left-Side AprilTags (Right-Side of Field)
   driverOne.povRight()
   .whileTrue(new AutoCenterOnRightSideCommand(LimeLightSystem))
@@ -294,6 +305,7 @@ public class RobotContainer {
   driverOne.povLeft()
   .whileTrue(new AutoCenterOnLeftSideCommand(LimeLightSystem))
   .onFalse(new InstantCommand(() -> LimeLightSystem.driveStop(), LimeLightSystem));
+
 
 
 

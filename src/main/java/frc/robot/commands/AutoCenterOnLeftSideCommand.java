@@ -22,8 +22,17 @@ public class AutoCenterOnLeftSideCommand extends Command {
         double currentTA = limeLightSystem.getCurrentTALeftPole();
         double tagID = limeLightSystem.getCurrentAprilTagIdLeftPole();
 
-        limeLightSystem.driveToTarget(currentTX, targetTX, currentTA, targetTA);
+        // ✅ Debugging: Print values
+        System.out.println("L - TX: " + currentTX + ", TA: " + currentTA + ", TagID: " + tagID);
+
+        // ✅ Only move if a valid AprilTag is detected
+        if (tagID > 0) {
+            limeLightSystem.driveToTarget(currentTX, targetTX, currentTA, targetTA);
+        } else {
+            limeLightSystem.driveStop(); // Stop if no tag found
+        }
     }
+
 
     @Override
     public boolean isFinished() {

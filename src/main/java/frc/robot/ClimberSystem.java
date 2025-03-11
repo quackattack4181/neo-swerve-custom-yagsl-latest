@@ -10,8 +10,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase; // ✅ Import SubsystemBase
 
 public class ClimberSystem extends SubsystemBase { // ✅ Extend SubsystemBase
 
-    // Head Speed Constants
-    public double climbSpeed = 0.90;
+    // Climber Speed Constants
+    public double climbSpeed = Constants.CustomConstants.climbSpeed;
     public double off = 0.00;
     public double climbCurrentAngle;
 

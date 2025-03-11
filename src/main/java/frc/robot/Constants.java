@@ -51,4 +51,46 @@ public final class Constants
     public static final double RIGHT_X_DEADBAND = 0.1;
     public static final double TURN_CONSTANT    = 6;
   }
+  public static class CustomConstants
+  {
+
+
+    // OUR CUSTOM ROBOT CONSTANTS BELOW HERE.....
+    // OUR CUSTOM ROBOT CONSTANTS BELOW HERE.....
+    // OUR CUSTOM ROBOT CONSTANTS BELOW HERE.....
+
+    // Elevator Speed Constants
+    public static double elevatorSpeed = 0.70;
+    public static double elevatorSpeedSlow = 0.05;
+
+    // Elevator Height Position Constants
+    public static double elevatorPositionL4 = 2270.00;
+    public static double elevatorPositionL3 = 1450.00;
+    public static double elevatorPositionL2 = 700.00;
+    public static double ElevatorHeightMin = 0.00;
+
+    // Climber Speed Constants
+    public static double climbSpeed = 0.90;
+
+
+    // Primary Shooter Head Constants BELOW...
+    // Primary Shooter Head Constants BELOW...
+    // Primary Shooter Head Constants BELOW...
+
+    // Head Speed Constants
+    public static double primaryHeadSpeed = 0.35;
+    public static double primaryHeadSpeedSlow = 0.10;
+
+    // Intake Wheels Constant
+    public static double feedMotorSpeed = 0.85;
+
+    // Head Pivoting Angle Constants - MIN & MAX
+    public static double baseAngle = 200.00;
+    public static double headAngleL4 = baseAngle - 18;
+    public static double headAngleL3 = baseAngle - 18;
+    public static double headAngleL2 = baseAngle - 18;
+    public static double headMaxOutAngle = baseAngle - 70;
+    public static double headDisabledAngle = baseAngle - 10;
+
+  }
 }

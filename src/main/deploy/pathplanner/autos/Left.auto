@@ -11,7 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "OLD-Left-1"
+                  "pathName": "Left-1"
                 }
               },
               {
@@ -21,12 +21,6 @@
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "CenterOnRightSide"
           }
         },
         {
@@ -61,7 +55,7 @@
           }
         },
         {
-          "type": "sequential",
+          "type": "parallel",
           "data": {
             "commands": [
               {
@@ -82,7 +76,32 @@
         {
           "type": "named",
           "data": {
-            "name": "CenterOnRightSide"
+            "name": "AutoShoot"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Left-4"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "SetLoad"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoIntake"
           }
         }
       ]

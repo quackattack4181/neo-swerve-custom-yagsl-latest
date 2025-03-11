@@ -10,14 +10,14 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 public class ElevatorSystem extends SubsystemBase { // ✅ Extend SubsystemBase
 
     // Elevator Speed Constants
-    public double elevatorSpeed = 0.70;
-    public double elevatorSpeedSlow = 0.05;
+    public double elevatorSpeed = Constants.CustomConstants.elevatorSpeed;
+    public double elevatorSpeedSlow = Constants.CustomConstants.elevatorSpeedSlow;
 
     // Elevator Height Position Constants
-    public double ElevatorHeightMin = 0.00;
-    public double elevatorPositionL2 = 700.00;
-    public double elevatorPositionL3 = 1450.00;
-    public double elevatorPositionL4 = 2270.00;
+    public double ElevatorHeightMin = Constants.CustomConstants.ElevatorHeightMin;
+    public double elevatorPositionL2 = Constants.CustomConstants.elevatorPositionL2;
+    public double elevatorPositionL3 = Constants.CustomConstants.elevatorPositionL3;
+    public double elevatorPositionL4 = Constants.CustomConstants.elevatorPositionL4;
 
 
 
