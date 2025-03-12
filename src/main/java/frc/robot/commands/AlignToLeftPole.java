@@ -12,13 +12,13 @@ public class AlignToLeftPole extends Command {
 
     private final PIDController lateralPID = new PIDController(0.055, 0.0, 0.0); // Left/Right Alignment
     private final PIDController rotationPID = new PIDController(0.015, 0.0, 0.0); // ✅ Lowered Rotation PID
-    private final PIDController distancePID = new PIDController(0.15, 0.0, 0.0); // Forward/Backward
+    private final PIDController distancePID = new PIDController(0.15, 0.0, 0.00); // Forward/Backward
 
-    private static final double TARGET_DISTANCE_METERS = 0.36; // 16 inches from tag
-    private static final double TARGET_X_METERS = 0.0; // Centered on AprilTag
+    private static final double TARGET_DISTANCE_METERS = 3.36; // 16 inches from tag
+    private static final double TARGET_X_METERS = 0.0254; // Shift 1 inch to the right
     private static final double YAW_TOLERANCE = 3; // Degrees
     private static final double LATERAL_TOLERANCE = 0.05; // 5 cm tolerance for lateral alignment
-    private static final double POSITION_TOLERANCE = 0.05; // 5 cm tolerance for forward/backward
+    private static final double POSITION_TOLERANCE = 0.03; // 5 cm tolerance for forward/backward
     private static final double SPEED_LIMIT = 1.0; // Max speed for lateral/forward
     private static final double ROTATION_LIMIT = 1.0; // ✅ Max rotation speed
 
@@ -48,17 +48,20 @@ public class AlignToLeftPole extends Command {
         double forwardOffset = botPose[13];  // Forward/Backward distance from AprilTag
         double rotationOffset = botPose[5]; // Rotation relative to the tag
 
-        double targetYaw = 0;
-
         // ✅ Compute Control Outputs
         double lateralSpeed = lateralPID.calculate(lateralOffset, TARGET_X_METERS);
-        lateralSpeed = Math.max(-SPEED_LIMIT, Math.min(lateralSpeed, SPEED_LIMIT)); // Clamp lateral speed
-
-        double rotationSpeed = rotationPID.calculate(rotationOffset, targetYaw);
-        rotationSpeed = Math.max(-ROTATION_LIMIT, Math.min(rotationSpeed, ROTATION_LIMIT)); // ✅ Clamp rotation speed
-
         double forwardSpeed = distancePID.calculate(forwardOffset, TARGET_DISTANCE_METERS);
-        forwardSpeed = Math.max(-SPEED_LIMIT, Math.min(forwardSpeed, SPEED_LIMIT)); // Clamp forward speed
+        double rotationSpeed = rotationPID.calculate(rotationOffset, 0); // Always target 0 yaw
+
+        // ✅ Apply minimum movement thresholds to prevent unnecessary drift
+        if (Math.abs(forwardSpeed) < 0.05) forwardSpeed = 0;
+        if (Math.abs(lateralSpeed) < 0.05) lateralSpeed = 0;
+        if (Math.abs(rotationSpeed) < 0.05) rotationSpeed = 0;
+
+        // ✅ Clamp speeds to avoid excessive movement
+        lateralSpeed = Math.max(-SPEED_LIMIT, Math.min(lateralSpeed, SPEED_LIMIT));
+        forwardSpeed = Math.max(-SPEED_LIMIT, Math.min(forwardSpeed, SPEED_LIMIT));
+        rotationSpeed = Math.max(-ROTATION_LIMIT, Math.min(rotationSpeed, ROTATION_LIMIT));
 
         // ✅ Debugging: Print All PID Outputs + Rotation Offset
         // System.out.println("Rotation Offset: " + rotationOffset);
