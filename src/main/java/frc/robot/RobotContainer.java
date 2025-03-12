@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -17,8 +18,8 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.AutoCenterOnLeftSideCommand;
-import frc.robot.commands.AutoCenterOnRightSideCommand;
+import frc.robot.commands.AlignToLeftPole;
+import frc.robot.commands.AlignToRightPole;
 import frc.robot.commands.AutoIntakeWithSensorCommand;
 import frc.robot.commands.AutoSetPositionCommand;
 import frc.robot.commands.AutoSetPositionCommandLoad;
@@ -26,16 +27,14 @@ import frc.robot.commands.AutoShootCommand;
 import frc.robot.commands.MoveClimberToPosition;
 import frc.robot.commands.SetElevatorHeight;
 import frc.robot.commands.SetHeadAngle;
+import frc.robot.subsystems.ClimberSystem;
+import frc.robot.subsystems.ElevatorSystem;
+import frc.robot.subsystems.HeadSystem;
+import frc.robot.subsystems.LimeLights;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
-import edu.wpi.first.wpilibj.DriverStation;
-
-import limelight.Limelight;
 import java.io.File;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-// import com.ctre.phoenix6.hardware.CANrange;
-// import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
 /**
@@ -58,10 +57,7 @@ public class RobotContainer {
   public HeadSystem HeadSystem = new HeadSystem();
   public ElevatorSystem ElevatorSystem = new ElevatorSystem();
   public ClimberSystem ClimberSystem = new ClimberSystem();                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
-  public LimeLightSystem LimeLightSystem  = new LimeLightSystem(drivebase);
-
-  public Limelight limeLightLeft = new Limelight("limelight-left");
-  public Limelight limeLightRight = new Limelight("limelight-right");
+  public LimeLights LimeLights = new LimeLights(); // Add Limelight subsystem
 
 
   // Applies deadbands and inverts controls because joysticks
@@ -95,23 +91,17 @@ public class RobotContainer {
    */
   public RobotContainer() {
 
-    CameraServer.startAutomaticCapture();
+    startUSBCamera();  // Enable USB Camera for dashboard
+    LimeLights.disableCameraStream(); // Disable video streaming on startup
+    LimeLights.enableVisionProcessing();  // Ensure AprilTag detection works
 
     // ✅ Register Commands for PathPlanner
     NamedCommands.registerCommand("SetL2", new AutoSetPositionCommand(HeadSystem, ElevatorSystem, HeadSystem.headAngleL2, ElevatorSystem.elevatorPositionL2));
     NamedCommands.registerCommand("SetL3", new AutoSetPositionCommand(HeadSystem, ElevatorSystem, HeadSystem.headAngleL3, ElevatorSystem.elevatorPositionL3));
     NamedCommands.registerCommand("SetL4", new AutoSetPositionCommand(HeadSystem, ElevatorSystem, HeadSystem.headAngleL4, ElevatorSystem.elevatorPositionL4));
     NamedCommands.registerCommand("SetLoad", new AutoSetPositionCommandLoad(HeadSystem, ElevatorSystem, HeadSystem.baseAngle, ElevatorSystem.ElevatorHeightMin));
-
-    // ✅ Register "AutoIntake" command for PathPlanner
     NamedCommands.registerCommand("AutoIntake", new AutoIntakeWithSensorCommand(HeadSystem, HeadSystem.feedMotorSpeed));
-
-    // ✅ Register "AutoShoot" command for PathPlanner
     NamedCommands.registerCommand("AutoShoot", new AutoShootCommand(HeadSystem, -HeadSystem.feedMotorSpeed, 1.0));
-
-    // ✅ Register Commands for PathPlanner (Updated)
-    NamedCommands.registerCommand("CenterOnLeftSide", new AutoCenterOnLeftSideCommand(LimeLightSystem));  // ✅ Aligns TX & TA
-    NamedCommands.registerCommand("CenterOnRightSide", new AutoCenterOnRightSideCommand(LimeLightSystem)); // ✅ Aligns TX & TA
 
 
     // Configure the trigger bindings
@@ -120,9 +110,11 @@ public class RobotContainer {
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Selected", autoChooser);
 
-    boolean isBlueAlliance = DriverStation.getAlliance()
-            .map(alliance -> alliance == DriverStation.Alliance.Blue)
-            .orElse(false); // Default to Red if unknown
+    boolean isBlueAlliance = false;
+
+    // boolean isBlueAlliance = DriverStation.getAlliance()
+    //         .map(alliance -> alliance == DriverStation.Alliance.Blue)
+    //         .orElse(false); // Default to Red if unknown
 
     // ✅ Add mirrored PathPlanner autos to the chooser
     autoChooser.setDefaultOption("Middle", new PathPlannerAuto("Middle", isBlueAlliance));
@@ -130,6 +122,13 @@ public class RobotContainer {
     autoChooser.addOption("Right", new PathPlannerAuto("Right", isBlueAlliance));
     
   }
+
+  // USB Camera and it's settings
+  private void startUSBCamera() {
+        UsbCamera camera = CameraServer.startAutomaticCapture(0);
+        camera.setResolution(320, 240); // Adjust resolution if needed
+        camera.setFPS(25); // Adjust FPS for efficiency
+    }
 
   /**
    * Use this method to define your trigger->command mappings. Triggers can be created via the
@@ -140,13 +139,42 @@ public class RobotContainer {
    */
 
   private void configureBindings() {
+
+    //========================================
+    //        Driver One Controls #1
+    //========================================
+
     drivebase.setDefaultCommand(!RobotBase.isSimulation() ? driveFieldOrientedDirectAngle : driveFieldOrientedDirectAngleSim);
-
-
-
 
     // Zero the gyro when driverOne presses A
     driverOne.a().onTrue(drivebase.runOnce(drivebase::zeroGyro));
+
+    // ✅ D-Pad RIGHT (90°) -> Auto Align to Left-Side AprilTags (Right-Side of Field)
+    // driverOne.povRight()
+    // .whileTrue(new AutoCenterOnRightSideCommand(LimeLightSystem))
+    // .onFalse(new InstantCommand(() -> LimeLightSystem.driveStop(), LimeLightSystem));
+
+    // // ✅ D-Pad LEFT (270°) -> Auto Align to Right-Side AprilTags (Left-Side of Field)
+    // driverOne.povLeft()
+    // .whileTrue(new AutoCenterOnLeftSideCommand(LimeLightSystem))
+    // .onFalse(new InstantCommand(() -> LimeLightSystem.driveStop(), LimeLightSystem));
+
+    // Align to LEFT pole (using RIGHT Limelight) when D-Pad Left (270°) is pressed
+    new Trigger(() -> driverOne.getHID().getPOV() == 270)
+    .whileTrue(new AlignToLeftPole(drivebase, LimeLights))
+    .onFalse(new InstantCommand(() -> drivebase.stop(), drivebase));
+
+    // Align to RIGHT pole (using LEFT Limelight) when D-Pad Right (90°) is pressed
+    new Trigger(() -> driverOne.getHID().getPOV() == 90)
+        .whileTrue(new AlignToRightPole(drivebase, LimeLights))
+        .onFalse(new InstantCommand(() -> drivebase.stop(), drivebase));
+
+
+
+    //========================================
+    //        Driver Two Controls #2
+    //========================================
+
 
     // ✅ Intake forward while Right Trigger is held, stop when released
     driverTwo.rightTrigger(0.5)
@@ -184,12 +212,7 @@ public class RobotContainer {
     );
 
 
-
-
-
-    // ✅ Head joystick control (Right Stick Y moves head up/down)
     // ✅ Move head to max out angle when pushing joystick forward (Right Stick Y < -0.5)
-
     new Trigger(() -> driverTwo.getRightY() < -0.5)
     .whileTrue(new RunCommand(() -> HeadSystem.setHeadAngle(HeadSystem.headMaxOutAngle), HeadSystem));
 
@@ -201,9 +224,6 @@ public class RobotContainer {
     new Trigger(() -> Math.abs(driverTwo.getRightY()) <= 0.5)
     .onTrue(new InstantCommand(HeadSystem::runHeadStop, HeadSystem));
 
-
-
-    // ============== DRIVER TWO BELOW
 
     // Position Commands
     driverTwo.a().onTrue(
@@ -231,8 +251,6 @@ public class RobotContainer {
     ));
 
 
-
-
     // Left Bumper controls elevator movement with joystick
     driverTwo.leftBumper().whileTrue(
         new RunCommand(() -> {
@@ -250,15 +268,17 @@ public class RobotContainer {
         }, ElevatorSystem)
     );
 
+    // Resets the elevator encoder to 0.00 for the current position
     driverTwo.back().onTrue(
     new InstantCommand(() -> {
       ElevatorSystem.runElevatorReset();
-    }, ElevatorSystem) // ✅ Now works because ElevatorSystem is a SubsystemBase
+    }, ElevatorSystem)
   );
 
 
+  driverTwo.povUp().onTrue(new MoveClimberToPosition(ClimberSystem, -350));
+  driverTwo.povDown().onTrue(new MoveClimberToPosition(ClimberSystem, 0.0));
 
-  // D-Pad for driverTwo
   // ✅ D-Pad RIGHT (90°) -> Center on Left Tag
   driverTwo.povRight().whileTrue(
       new RunCommand(() -> ClimberSystem.runClimbArmOutward())
@@ -273,43 +293,10 @@ public class RobotContainer {
     new InstantCommand(() -> ClimberSystem.runClimbArmStop())
   );
   
-  driverTwo.povUp().onTrue(new MoveClimberToPosition(ClimberSystem, -350));
-  driverTwo.povDown().onTrue(new MoveClimberToPosition(ClimberSystem, 0.0));
-
-  // ✅ START Button -> Reset Climber Encoder to 0
+  // ✅ START Button -> Reset Climber Encoder to 0.00
   driverTwo.start().onTrue(
     new InstantCommand(() -> ClimberSystem.climbMotorEncoder.setPosition(0.0), ClimberSystem)
   );
-
-
-
-  // Limelight controls.
-
-  // // ✅ D-Pad RIGHT (90°) -> Align with Right-Side Pole (Use Left Limelight)
-  // driverOne.povRight()
-  // .whileTrue(new RunCommand(() -> LimeLightSystem.alignToAprilTag(false), LimeLightSystem))
-  // .onFalse(new InstantCommand(() -> LimeLightSystem.driveStop(), LimeLightSystem));
-
-  // // ✅ D-Pad LEFT (270°) -> Align with Left-Side Pole (Use Right Limelight)
-  // driverOne.povLeft()
-  // .whileTrue(new RunCommand(() -> LimeLightSystem.alignToAprilTag(true), LimeLightSystem))
-  // .onFalse(new InstantCommand(() -> LimeLightSystem.driveStop(), LimeLightSystem));
-
-
-  // ✅ D-Pad RIGHT (90°) -> Auto Align to Left-Side AprilTags (Right-Side of Field)
-  driverOne.povRight()
-  .whileTrue(new AutoCenterOnRightSideCommand(LimeLightSystem))
-  .onFalse(new InstantCommand(() -> LimeLightSystem.driveStop(), LimeLightSystem));
-
-  // ✅ D-Pad LEFT (270°) -> Auto Align to Right-Side AprilTags (Left-Side of Field)
-  driverOne.povLeft()
-  .whileTrue(new AutoCenterOnLeftSideCommand(LimeLightSystem))
-  .onFalse(new InstantCommand(() -> LimeLightSystem.driveStop(), LimeLightSystem));
-
-
-
-
-
 
 
 

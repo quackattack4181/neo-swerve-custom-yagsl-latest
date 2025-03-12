@@ -1,4 +1,4 @@
-package frc.robot;
+package frc.robot.subsystems;
 
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.CANrange;
@@ -8,6 +8,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase; // ✅ Import SubsystemBase
+import frc.robot.Constants;
 
 public class HeadSystem extends SubsystemBase { // ✅ Extend SubsystemBase
 

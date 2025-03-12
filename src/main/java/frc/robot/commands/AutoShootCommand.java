@@ -2,7 +2,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.HeadSystem;
+import frc.robot.subsystems.HeadSystem;
 
 public class AutoShootCommand extends Command {
     private final HeadSystem headSystem;

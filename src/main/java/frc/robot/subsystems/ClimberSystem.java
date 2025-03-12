@@ -1,4 +1,4 @@
-package frc.robot;
+package frc.robot.subsystems;
 
 
 import com.revrobotics.RelativeEncoder;
@@ -7,6 +7,7 @@ import com.revrobotics.spark.SparkMax;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase; // ✅ Import SubsystemBase
+import frc.robot.Constants;
 
 public class ClimberSystem extends SubsystemBase { // ✅ Extend SubsystemBase
 

@@ -1,7 +1,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.ElevatorSystem;
+import frc.robot.subsystems.ElevatorSystem;
 
 public class SetElevatorHeight extends Command {
     private final ElevatorSystem elevatorSystem;
