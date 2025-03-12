@@ -15,7 +15,7 @@ public class AlignToLeftPole extends Command {
     private final PIDController distancePID = new PIDController(0.15, 0.0, 0.00); // Forward/Backward
 
     private static final double TARGET_DISTANCE_METERS = 3.00; // 16 inches from tag
-    private static final double TARGET_X_METERS = 0.0254; // Shift 1 inch to the right
+    private static final double TARGET_X_METERS = -7.0254; // Shift 1 inch to the right
     private static final double YAW_TOLERANCE = 3; // Degrees
     private static final double LATERAL_TOLERANCE = 0.05; // 5 cm tolerance for lateral alignment
     private static final double POSITION_TOLERANCE = 0.03; // 5 cm tolerance for forward/backward
