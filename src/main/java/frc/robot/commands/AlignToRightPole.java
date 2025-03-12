@@ -14,7 +14,7 @@ public class AlignToRightPole extends Command {
     private final PIDController rotationPID = new PIDController(0.015, 0.0, 0.0); // ✅ Lowered Rotation PID
     private final PIDController distancePID = new PIDController(0.15, 0.0, 0.00); // Forward/Backward
 
-    private static final double TARGET_DISTANCE_METERS = 0.36; // 16 inches from tag
+    private static final double TARGET_DISTANCE_METERS = 1.36; // 16 inches from tag
     private static final double TARGET_X_METERS = 0.0; // Centered on AprilTag
     private static final double YAW_TOLERANCE = 3; // Degrees
     private static final double LATERAL_TOLERANCE = 0.05; // 5 cm tolerance for lateral alignment
