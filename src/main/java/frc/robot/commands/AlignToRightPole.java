@@ -76,7 +76,7 @@ public class AlignToRightPole extends Command {
         if (botPose.length < 18) return false;
 
         boolean lateralAligned = Math.abs(botPose[12] - TARGET_X_METERS) < LATERAL_TOLERANCE;
-        boolean rotationAligned = Math.abs(botPose[14]) < YAW_TOLERANCE;
+        boolean rotationAligned = Math.abs(botPose[5]) < YAW_TOLERANCE;
         boolean forwardAligned = Math.abs(botPose[13] - TARGET_DISTANCE_METERS) < POSITION_TOLERANCE;
 
         return lateralAligned && rotationAligned && forwardAligned;

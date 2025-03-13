@@ -102,6 +102,8 @@ public class RobotContainer {
     NamedCommands.registerCommand("SetLoad", new AutoSetPositionCommandLoad(HeadSystem, ElevatorSystem, HeadSystem.baseAngle, ElevatorSystem.ElevatorHeightMin));
     NamedCommands.registerCommand("AutoIntake", new AutoIntakeWithSensorCommand(HeadSystem, HeadSystem.feedMotorSpeed));
     NamedCommands.registerCommand("AutoShoot", new AutoShootCommand(HeadSystem, -HeadSystem.feedMotorSpeed, 1.0));
+    NamedCommands.registerCommand("AutoAlignLeft", new AlignToLeftPole(drivebase, LimeLights));
+    NamedCommands.registerCommand("AutoAlignRight", new AlignToRightPole(drivebase, LimeLights));
 
 
     // Configure the trigger bindings
@@ -195,7 +197,12 @@ public class RobotContainer {
           double sensorValue = HeadSystem.loadSensor.getDistance().getValueAsDouble() * 1000;
 
           if (sensorValue > 85) { // ✅ Object detected → Keep running intake
-              HeadSystem.feedMotor.set(HeadSystem.feedMotorSpeed);
+              new SequentialCommandGroup(
+                  new SetHeadAngle(HeadSystem.headAngleL2, HeadSystem),
+                  new SetElevatorHeight(ElevatorSystem, ElevatorSystem.ElevatorHeightMin),
+                  new SetHeadAngle(HeadSystem.baseAngle, HeadSystem)
+              ).schedule();
+            HeadSystem.feedMotor.set(HeadSystem.feedMotorSpeed);
           } else { 
               HeadSystem.feedMotor.set(HeadSystem.off); // ✅ Object loaded → Stop intake
               
